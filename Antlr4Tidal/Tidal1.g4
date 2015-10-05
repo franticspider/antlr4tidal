@@ -15,18 +15,24 @@ options{
 //}
 
 	
-tidal : CHANNEL pattern; //d1 ...d9
+tidal : CHANNEL message (KNIT cont_frag )*; //d1 ...d9
 
-pattern : (pattfrag)+; 
+message : (pattfrag)*; 
+
+
+/* General and Nested Transformations */
+
+
 
 //TODO: We always need a SND_OP to manip
 pattfrag 
-	: DOLLAR SND_OP sample_set 
+	: DOLLAR SND_OP sequence 
 	| DOLLAR BRAK;
 
 
+/* Sequence expressions */
 
-sample_set : QUOT sample_expr QUOT ;
+sequence : QUOT sample_expr QUOT ;
 
 sample_expr
 	: (sample_atom)+ (COMMA (sample_atom)+ )*
@@ -38,10 +44,23 @@ sample_expr
 //	;	
 	
 sample_atom
-	: 	  (SAMPLE (COLON DIGIT)? (TIMES DIGIT)? )+
+	: 	  (SAMPLE (COLON DIGIT)? ((TIMES|DIVID) DIGIT)? )+
 	| LSQB sample_expr RSQB  (TIMES DIGIT)?
+	| LCRB sample_expr RCRB  (TIMES DIGIT)? (MODUL DIGIT)?
 	;
 
+/* Continuous expressions */
+
+cont_frag : CONT_OP cont_patt;
+
+cont_patt
+	: QUOT (number)* QUOT
+	| WAVE
+	;
+
+
+
+/* Numeric expressions */
 integer
 	: (DIGIT)+;
 
