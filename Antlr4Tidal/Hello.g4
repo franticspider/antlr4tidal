@@ -1,8 +1,11 @@
 /**
  * Define a grammar called Hello
  */
-grammar Hello;
-r  : 'hello' ID ;         // match keyword hello followed by an identifier
+grammar Hello;     // match keyword hello followed by an identifier
+
+num_seq: (MYINT)*;
+
+MYINT: ('1'..'9')('0'..'9')*;
 
 ID : [a-z]+ ;             // match lower-case identifiers
 
