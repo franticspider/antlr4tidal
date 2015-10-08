@@ -23,26 +23,43 @@ PALIN : 'palindrome';
 //1 integer arg:
 ITER: 'iter';
 DENSITY: 'density';
+CHOP: 'chop';
+STRIATE: 'striate';
+GAP: 'gap';
+
+//This is different from the above, but still has 1 arg
+RUN: 'run';
+
 
 //1 float arg:
 DEG_BY: 'degradeBy';
 SLOW: 'slow';
 TRUNC: 'trunc';
 
+
 //complex:
 EVERY: 'every';
+FOLDEVERY: 'foldEvery';
 JUX: 'jux';
-STRIATE: 'striate';
-STRIATE1: 'striate\'';
+SAMPLES: 'samples';
 SLOWSPREAD: 'slowspread';
 SMASH: 'smash';
+SOMETIMESBY: 'sometimesBy';
 SPREAD: 'spread';
 SPREAD1: 'spread\'';
+STRIATE1: 'striate\'';
 STUT: 'stut';
+WHENMOD: 'whenmod';
+WITHIN: 'within';
+ZOOM: 'zoom';
 
-/* SAMPLE TRANSFORMS */
-CHOP: 'chop';
-
+SOMETIMESBY_ALIASES
+	: 'sometimes'
+	| 'often'
+	| 'rarely'
+	| 'almostNever'
+	| 'almostAlways'
+	;
 
 
 SYNTH_OP
@@ -58,11 +75,15 @@ VOWEL: 'a'|'e'|'i'|'o'|'u';
 
 SAMPLE 
 	: '~'
+	| 'arp'
 	| 'arpy'
+	| 'bass3'
 	| 'bd' 
 	| 'bev'
+	| 'blip'
 	| 'can'
 	| 'cp'
+	| 'drum'
 	| 'feel' 
 	| 'future'
 	| 'hc'
@@ -106,13 +127,14 @@ DIVID: '/';
 MINUS: '-';
 QUESM: '?';
 
-
+//zero needs to be before Integer (I think..)
+ZERO: '0';
+ONE: '1';
 //DIGIT: ('0'..'9');
 //DIG19: ('1'..'9');
 //INTEGER: ('0'..'9') | (('1'..'9')('0'..'9')+);  
 INTEGER: ('0'..'9')+;// | (('1'..'9')('0'..'9')+);  
 
-ZERO: '0';
 
 
 /* This is from http://stackoverflow.com/questions/15503561/antlr4-whitespace-handling */
