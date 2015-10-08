@@ -64,12 +64,28 @@ SOMETIMESBY_ALIASES
 
 SYNTH_OP
 	: 'accelerate'
+	| 'shape'
 	| 'speed'
 	;
 	
 VOWEL_OP: 'vowel';
 VOWEL: 'a'|'e'|'i'|'o'|'u';
 	
+/* COMPOSITIONS */
+
+APPEND: 'append';
+APPEND1: 'append\'';
+CAT: 'cat';
+INTERLACE: 'interlace';
+SEQP: 'seqP';
+SLOWCAT: 'slowcat';
+SPIN: 'spin'; //shouldn't be in compositions imho
+STACK: 'stack';
+SUPERIMP: 'superimpose';
+WEAVE: 'weave';
+WEAVE1: 'weave\'';
+WEDGE: 'wedge';
+
 
 /* SAMPLES */
 
@@ -94,9 +110,11 @@ SAMPLE
 	| 'kurt'
 	| 'lt'
 	| 'mt'
+	| 'odx'
 	| 'sn'  
 	| 'sd'
 	| 'sid' 
+	| 'tabla'
 	;
 	
 WAVE

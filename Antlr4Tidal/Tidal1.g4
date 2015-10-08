@@ -23,7 +23,19 @@ message
 	: (trans_spec DOLLAR)* (pattfrag)+ (KNIT cont_frag )*
 	| trans_spec LBRK (pattfrag)+ RBRK (KNIT cont_frag )*
 	| LBRK message RBRK (KNIT cont_frag )*
+	| (APPEND|APPEND1|INTERLACE| (WEDGE LBRK (ONE|INTEGER) DIVID INTEGER RBRK)) LBRK message RBRK LBRK message RBRK
+	| (CAT|SLOWCAT|STACK) LSQB pattfrag (COMMA pattfrag)* RSQB
+	| SEQP LSQB seqp_spec (COMMA seqp_spec)* RSQB
+	| SUPERIMP LBRK trans_spec RBRK DOLLAR message
+	| WEAVE INTEGER LBRK trans_spec RBRK LSQB message (COMMA message)* RSQB
+	| WEAVE1 INTEGER LBRK pattfrag (COMMA pattfrag)* RBRK LSQB trans_spec (COMMA trans_spec)* RSQB
 	; 
+
+/* COMPOSITION SPECS */
+seqp_spec
+	: LBRK (ZERO|INTEGER) COMMA INTEGER  COMMA message RBRK
+	;
+
 
 
 /* General and Nested Transformations */
@@ -52,7 +64,7 @@ sample_expr
 	;
 	
 sample_atom
-	: (SAMPLE (COLON INTEGER)? ((TIMES|DIVID) INTEGER)? | (LBRK INTEGER COMMA INTEGER RBRK)) (QUESM)?
+	: (SAMPLE (COLON INTEGER)? ((TIMES|DIVID) (ONE|INTEGER))? | (LBRK INTEGER COMMA INTEGER RBRK)) (QUESM)?
 	| LSQB sample_expr RSQB  ((TIMES|DIVID) INTEGER)? (QUESM)?//(MODUL DIGIT)? <- I've never seen this with square brackets...
 	| LCRB sample_expr RCRB  ((TIMES|DIVID) INTEGER)? (MODUL INTEGER)? (QUESM)?
 	;
@@ -87,21 +99,21 @@ cont_atom
 //TODO: Fix all the 'TODO's in this spec:	
 trans_spec
 	: trans_0arg
-	| LBRK trans_spec RBRK
+	| LBRK trans_spec RBRK (POINT LBRK trans_spec RBRK)*
 	| slow_pattern
 	| STUT INTEGER zero2one (zero2one | LBRK MINUS zero2one RBRK)
-	| (KNIT)? SYNTH_OP cont_patt
+	| cont_frag//(KNIT)? SYNTH_OP cont_patt
 	| (DEG_BY|TRUNC) zero2one
 	| (number)? (BEATR|BEATL)
 	| int_arg_trans INTEGER
-	| EVERY INTEGER LBRK trans_spec RBRK 
+	| EVERY INTEGER ((LBRK trans_spec RBRK)| trans_spec) 
 	| FOLDEVERY LSQB INTEGER (COMMA INTEGER)+ RSQB LBRK trans_spec RBRK
 	| (SOMETIMESBY_ALIASES | SOMETIMESBY zero2one) LBRK trans_spec RBRK
 	| WHENMOD INTEGER INTEGER LBRK trans_spec RBRK 
 	| WITHIN LBRK zero2one COMMA zero2one RBRK LBRK (trans_spec|(KNIT cont_frag )) RBRK //TODO: may need the 'KNIT' part in other commands
 	| JUX LBRK trans_spec (POINT trans_spec)* RBRK //TODO: look at the point thing here for other functions
 	| ZOOM LBRK zero2one COMMA zero2one RBRK
-	| STRIATE1 INTEGER LBRK INTEGER DIVID INTEGER RBRK
+	| STRIATE1 INTEGER LBRK (ONE|INTEGER) DIVID (ONE|INTEGER) RBRK
 	| SMASH INTEGER LSQB INTEGER (COMMA INTEGER)* RSQB
 	| slowspread_pattern
 	;	
@@ -141,7 +153,7 @@ sample_trans
 /* Transformations with a single integer argument */
 //TODO: Maybe we can use this wherever we use slow..?	
 int_arg_trans
-	: (CHOP|DENSITY|SLOW|ITER|STRIATE|GAP)
+	: (CHOP|DENSITY|SLOW|ITER|STRIATE|GAP|SPIN)
 	;	
 
 /* Numeric expressions */
