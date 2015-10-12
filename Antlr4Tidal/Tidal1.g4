@@ -10,11 +10,11 @@ options{
 }
 
 //TODO: Need to be able to specify the path to the lexer before we create this package
-//@header{
-//	package com.grammar.tidal;
-//}
+@header{
+	package com.antlr4.tidal;
+}
  
-	
+	  
 tidal 
 	: CHANNEL DOLLAR message ; //d1 ...d9
 
@@ -23,32 +23,31 @@ message
 	: (trans_spec DOLLAR)* (pattfrag)+ (KNIT cont_frag )*
 	| trans_spec LBRK (pattfrag)+ RBRK (KNIT cont_frag )*
 	| LBRK message RBRK (KNIT cont_frag )*
-	| (APPEND|APPEND1|INTERLACE| (WEDGE LBRK (ONE|INTEGER) DIVID INTEGER RBRK)) LBRK message RBRK LBRK message RBRK
+	| (APPEND|APPEND1|INTERLACE| (WEDGE LBRK intint DIVID intint RBRK)) LBRK message RBRK LBRK message RBRK
 	| (CAT|SLOWCAT|STACK) LSQB pattfrag (COMMA pattfrag)* RSQB
 	| SEQP LSQB seqp_spec (COMMA seqp_spec)* RSQB
-	| SUPERIMP LBRK trans_spec RBRK DOLLAR message
 	| WEAVE INTEGER LBRK trans_spec RBRK LSQB message (COMMA message)* RSQB
-	| WEAVE1 INTEGER LBRK pattfrag (COMMA pattfrag)* RBRK LSQB trans_spec (COMMA trans_spec)* RSQB
+	| WEAVE1 INTEGER LBRK message (COMMA pattfrag)* RBRK LSQB trans_spec (COMMA trans_spec)* RSQB
 	; 
+
 
 /* COMPOSITION SPECS */
 seqp_spec
 	: LBRK (ZERO|INTEGER) COMMA INTEGER  COMMA message RBRK
 	;
 
-
-
 /* General and Nested Transformations */
 pattfrag 
-	:  SND_OP sequence 
+	:  SND_OP sequence
 	;
-
 
 /* Sequence expressions */
 sequence 
 	: QUOT sample_expr QUOT 
-	| LBRK trans_spec QUOT sample_expr QUOT RBRK
-	| LBRK SAMPLES QUOT sample_expr QUOT samples_seqlist RBRK
+	| trans_spec (POINT LBRK trans_spec RBRK)* QUOT sample_expr QUOT //This causes problems with the next line
+	| LBRK sequence RBRK 
+	| SAMPLES QUOT sample_expr QUOT samples_seqlist
+	| app_func_pattern
 	;
 	
 /* Ways of getting lists of integers for "samples" command */	
@@ -64,31 +63,44 @@ sample_expr
 	;
 	
 sample_atom
-	: (SAMPLE (COLON INTEGER)? ((TIMES|DIVID) (ONE|INTEGER))? | (LBRK INTEGER COMMA INTEGER RBRK)) (QUESM)?
-	| LSQB sample_expr RSQB  ((TIMES|DIVID) INTEGER)? (QUESM)?//(MODUL DIGIT)? <- I've never seen this with square brackets...
-	| LCRB sample_expr RCRB  ((TIMES|DIVID) INTEGER)? (MODUL INTEGER)? (QUESM)?
+	: (SAMPLE (COLON intint)? ((TIMES|DIVID) intint)? | (LBRK intint COMMA intint RBRK)) (QUESM)?
+	| LSQB sample_expr RSQB  ((TIMES|DIVID) intint)? (QUESM)?//(MODUL DIGIT)? <- I've never seen this with square brackets...
+	| LCRB sample_expr RCRB  ((TIMES|DIVID) intint)? (MODUL intint)? (QUESM)?
 	;
 
-/* Continuous expressions */
 
+/* APPLICATIVE FUNCTOR STUFF */
+
+app_func_pattern
+	: ((LBRK STAR RBRK)|SYNTH_OP|CONT_OP|PICK_OP) 
+		APDOLL sequence APSTAR cont_frag
+	;
+
+
+
+/* Continuous expressions (usually involves |+|)*/
 cont_frag 
 	: (KNIT)? SYNTH_OP QUOT cont_patt QUOT
+//	|         SYNTH_OP QUOT cont_patt QUOT (KNIT)?
 	| VOWEL_OP QUOT (VOWEL)+ QUOT
-	| INTEGER
+	| intint
 	| slow_pattern
-	| cont_frag LBRK cont_frag RBRK
-	| CONT_OP QUOT cont_patt QUOT 
+	//| (cont_frag)? LBRK cont_frag RBRK
+	| CONT_OP cont_patt  
 	; 
 
+//TODO: We have both quotes AND brackets around these - need to disentangle the rules!
 cont_patt
 	: cont_atom (COMMA cont_atom)*
 	| WAVE
 	| LBRK trans_spec WAVE RBRK 
+	| LBRK cont_patt RBRK
+	| QUOT cont_patt QUOT 
 	;
 
 cont_atom
 	: (number)+
-	| (LSQB cont_patt RSQB ((TIMES|DIVID) INTEGER)*)+
+	| (LSQB cont_patt RSQB ((TIMES|DIVID) intint)*)+
 	;
 /* Transform exprssions */
 //transform 
@@ -99,22 +111,23 @@ cont_atom
 //TODO: Fix all the 'TODO's in this spec:	
 trans_spec
 	: trans_0arg
-	| LBRK trans_spec RBRK (POINT LBRK trans_spec RBRK)*
+	| LBRK trans_spec  RBRK (POINT LBRK trans_spec RBRK)*
 	| slow_pattern
 	| STUT INTEGER zero2one (zero2one | LBRK MINUS zero2one RBRK)
+	| SUPERIMP LBRK trans_spec RBRK //DOLLAR message
 	| cont_frag//(KNIT)? SYNTH_OP cont_patt
 	| (DEG_BY|TRUNC) zero2one
 	| (number)? (BEATR|BEATL)
-	| int_arg_trans INTEGER
+	| int_arg_trans intint
 	| EVERY INTEGER ((LBRK trans_spec RBRK)| trans_spec) 
 	| FOLDEVERY LSQB INTEGER (COMMA INTEGER)+ RSQB LBRK trans_spec RBRK
-	| (SOMETIMESBY_ALIASES | SOMETIMESBY zero2one) LBRK trans_spec RBRK
+	| (SOMETIMESBY_ALIASES | SOMETIMESBY zero2one) trans_spec
 	| WHENMOD INTEGER INTEGER LBRK trans_spec RBRK 
 	| WITHIN LBRK zero2one COMMA zero2one RBRK LBRK (trans_spec|(KNIT cont_frag )) RBRK //TODO: may need the 'KNIT' part in other commands
 	| JUX LBRK trans_spec (POINT trans_spec)* RBRK //TODO: look at the point thing here for other functions
 	| ZOOM LBRK zero2one COMMA zero2one RBRK
 	| STRIATE1 INTEGER LBRK (ONE|INTEGER) DIVID (ONE|INTEGER) RBRK
-	| SMASH INTEGER LSQB INTEGER (COMMA INTEGER)* RSQB
+	| SMASH intint LSQB number (COMMA number)* RSQB
 	| slowspread_pattern
 	;	
 	
@@ -122,16 +135,18 @@ trans_0arg //Transformations with no arguments
 	: (BRAK | DEGRADE | REV | PALIN);
 	
 slow_pattern
-	: SLOW number 
-	| SLOW LBRK int_or_ratio RBRK
+	//: SLOW (number) //<- this seems to be matching sequences of ints as a single number	 
+	: SLOW LBRK int_or_ratio RBRK
+//Experimental for app_func
+	| SLOW intint	QUOT (slowspread_atom) QUOT
 	;
 	
 slowspread_pattern
 	//1: Spread a set of values over a single function:
-	: (SPREAD|SLOWSPREAD) LBRK sample_trans RBRK LSQB int_or_ratio (COMMA int_or_ratio)* RSQB
-	| (SPREAD|SLOWSPREAD) sample_trans LSQB int_or_ratio (COMMA int_or_ratio)* RSQB
+	: (SPREAD|SLOWSPREAD) sample_trans LSQB (number|int_or_ratio) (COMMA (number|int_or_ratio))* RSQB
 	//2: Spread a bunch of different functions: 
-	| SLOWSPREAD LBRK DOLLAR RBRK LSQB  int_or_ratio (COMMA int_or_ratio)* RSQB
+	//| SLOWSPREAD LBRK DOLLAR RBRK LSQB  (number) (COMMA (number))* RSQB
+	| SLOWSPREAD LBRK DOLLAR RBRK LSQB trans_spec (COMMA trans_spec)* RSQB
 	| SPREAD1 sample_trans QUOT (slowspread_atom) QUOT
 	;	
 	
@@ -146,7 +161,8 @@ sample_trans_func
 	
 sample_trans
 	: int_arg_trans
-	| STUT INTEGER INTEGER
+	| LBRK sample_trans RBRK
+	| STUT intint intint
 	| STRIATE
 	;
 	
@@ -160,11 +176,16 @@ int_arg_trans
 
 /*Any number from 0.0 to 0.9999999999 recurring iyswim */
 zero2one
-	: ONE | (ZERO (POINT INTEGER)?);
+	: ONE | (ZERO (POINT INTEGER)?)
+	| LBRK zero2one RBRK;
 
 /* Any Digit */
 //digit: ZERO|DIG19;
 
+intint
+	: (ONE|INTEGER)
+	| LBRK intint RBRK
+	;
 	
 int_or_ratio
 	: INTEGER //number
@@ -172,7 +193,7 @@ int_or_ratio
 	;	
 
 number
-    : MINUS? (ZERO|INTEGER)+ (POINT (ZERO|INTEGER)*)?
+    : MINUS? (ZERO|intint)+ (POINT (ZERO|intint)*)?
     ;
     
     

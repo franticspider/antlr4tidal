@@ -8,10 +8,6 @@ SND_OP : 'sound' ;
 
 //TODO: some CONT_OPs apply elsewhere
 	
-CONT_OP
-	: 'pan'
-	| 'shape'
-	;
 
 /* Pattern Transforms */
 //0 args:
@@ -61,12 +57,22 @@ SOMETIMESBY_ALIASES
 	| 'almostAlways'
 	;
 
-
+//TODO: possibly reorganize so that patterns from 0 to 1 are separate
 SYNTH_OP
 	: 'accelerate'
+	| 'crush'
 	| 'shape'
 	| 'speed'
 	;
+
+CONT_OP
+	: 'pan'
+	| 'shape'
+	;
+	
+PICK_OP
+	: 'pick'
+	;	
 	
 VOWEL_OP: 'vowel';
 VOWEL: 'a'|'e'|'i'|'o'|'u';
@@ -95,6 +101,7 @@ SAMPLE
 	| 'arpy'
 	| 'bass3'
 	| 'bd' 
+	| 'bd8' //often we have several directories of bd
 	| 'bev'
 	| 'blip'
 	| 'can'
@@ -109,8 +116,10 @@ SAMPLE
 	| 'jvbass'
 	| 'kurt'
 	| 'lt'
+	| 'mouth'
 	| 'mt'
 	| 'odx'
+	| 'rave'
 	| 'sn'  
 	| 'sd'
 	| 'sid' 
@@ -119,6 +128,7 @@ SAMPLE
 	
 WAVE
 	: 'sinewave1'
+	| 'sine1'
 	| 'squarewave1'
 	| 'triwave1'
 	;	
@@ -126,6 +136,9 @@ WAVE
 KNIT : '|+|' ;
 BEATR : '~>';
 BEATL : '<~';
+
+APDOLL: '<$>';
+APSTAR: '<*>';
 
 LBRK	: '(';
 RBRK	: ')';
@@ -144,6 +157,7 @@ MODUL: '%';
 DIVID: '/';
 MINUS: '-';
 QUESM: '?';
+STAR:  '*';	
 
 //zero needs to be before Integer (I think..)
 ZERO: '0';
