@@ -5,20 +5,23 @@
 grammar Tidal1;
 
 options{
+	
 	language = Java;
 	tokenVocab=Tidal1lexer;   
 }
 
 //TODO: Need to be able to specify the path to the lexer before we create this package
-@header{
-	package com.antlr4.tidal;
-}
+//@header{
+//	package com.antlr4.tidal;
+//}
  
 	  
-tidal 
+tidal    
 	: CHANNEL DOLLAR message ; //d1 ...d9
 
 //TODO: Need to deal with a potential mix of dollars and brackets...
+//TODO: Need to put KNIT within the cont_frag - would be neater
+//TODO: Need to put the (cont_frag)* stuff at the end of each of these (I think)
 message 
 	: (trans_spec DOLLAR)* (pattfrag)+ (KNIT cont_frag )*
 	| trans_spec LBRK (pattfrag)+ RBRK (KNIT cont_frag )*
@@ -36,7 +39,7 @@ seqp_spec
 	: LBRK (ZERO|INTEGER) COMMA INTEGER  COMMA message RBRK
 	;
 
-/* General and Nested Transformations */
+/* General and Nested Transformations */ 
 pattfrag 
 	:  SND_OP sequence
 	;
@@ -72,7 +75,7 @@ sample_atom
 /* APPLICATIVE FUNCTOR STUFF */
 
 app_func_pattern
-	: ((LBRK STAR RBRK)|SYNTH_OP|CONT_OP|PICK_OP) 
+	: ((LBRK STAR RBRK)|SYNTH_OP|PICK_OP) 
 		APDOLL sequence APSTAR cont_frag
 	;
 
@@ -81,15 +84,17 @@ app_func_pattern
 /* Continuous expressions (usually involves |+|)*/
 cont_frag 
 	: (KNIT)? SYNTH_OP QUOT cont_patt QUOT
+	| SYNTH_OP cont_patt
 //	|         SYNTH_OP QUOT cont_patt QUOT (KNIT)?
 	| VOWEL_OP QUOT (VOWEL)+ QUOT
-	| intint
+	| intint //TODO: This shouldn't be here should it?
 	| slow_pattern
 	//| (cont_frag)? LBRK cont_frag RBRK
-	| CONT_OP cont_patt  
 	; 
 
 //TODO: We have both quotes AND brackets around these - need to disentangle the rules!
+// pan: uses either quoted number strings or waves
+//
 cont_patt
 	: cont_atom (COMMA cont_atom)*
 	| WAVE
@@ -136,7 +141,7 @@ trans_0arg //Transformations with no arguments
 	
 slow_pattern
 	//: SLOW (number) //<- this seems to be matching sequences of ints as a single number	 
-	: SLOW LBRK int_or_ratio RBRK
+	: SLOW intint LBRK (int_or_ratio | cont_frag) RBRK
 //Experimental for app_func
 	| SLOW intint	QUOT (slowspread_atom) QUOT
 	;
