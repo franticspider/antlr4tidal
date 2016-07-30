@@ -17,7 +17,18 @@ options{
  
 	  
 tidal    
-	: CHANNEL DOLLAR message ; //d1 ...d9
+	: CHANNEL DOLLAR message 
+//	| MIDICHAN DOLLAR midimsg
+	; //d1 ...d9
+/* 
+midimsg
+	: NOTE_OP QUOT (midi_atom)+ QUOT 
+	;
+	
+midi_atom
+	: INTEGER|PAUSE
+	;
+*/
 
 //TODO: Need to deal with a potential mix of dollars and brackets...
 //TODO: Need to put KNIT within the cont_frag - would be neater
@@ -39,7 +50,7 @@ seqp_spec
 	: LBRK (ZERO|INTEGER) COMMA INTEGER  COMMA message RBRK
 	;
 
-/* General and Nested Transformations */ 
+/* General and Nested Transformations */
 pattfrag 
 	:  SND_OP sequence
 	;
@@ -66,6 +77,7 @@ sample_expr
 	;
 	
 sample_atom
+//	: PAUSE
 	: (SAMPLE (COLON intint)? ((TIMES|DIVID) intint)? | (LBRK intint COMMA intint RBRK)) (QUESM)?
 	| LSQB sample_expr RSQB  ((TIMES|DIVID) intint)? (QUESM)?//(MODUL DIGIT)? <- I've never seen this with square brackets...
 	| LCRB sample_expr RCRB  ((TIMES|DIVID) intint)? (MODUL intint)? (QUESM)?
@@ -90,6 +102,7 @@ cont_frag
 	| intint //TODO: This shouldn't be here should it?
 	| slow_pattern
 	//| (cont_frag)? LBRK cont_frag RBRK
+	//| CONT_OP cont_patt  
 	; 
 
 //TODO: We have both quotes AND brackets around these - need to disentangle the rules!

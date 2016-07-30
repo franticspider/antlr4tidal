@@ -1,11 +1,13 @@
 lexer grammar Tidal1lexer;
 
 CHANNEL	: ('d') ('1'..'9');
+//MIDICHAN: ('k') ('1'..'9');
 DOLLAR : '$' ;
 QUOT : '"';
 
 SND_OP : 'sound' ; 
 
+//NOTE_OP : 'note' ;
 
 /* Pattern Transforms */
 //0 args:
@@ -76,6 +78,8 @@ SYNTH_OP
 	| 'speed'
 	;
 
+////TODO: We have to do this because I don't yet know how to delete tokens..
+//CONT_OP: 'obsoletepan';
 	
 PICK_OP
 	: 'pick'
@@ -99,6 +103,12 @@ WEAVE: 'weave';
 WEAVE1: 'weave\'';
 WEDGE: 'wedge';
 
+
+/* PAUSE */
+
+//PAUSE
+//	: '~'
+//	;
 
 /* SAMPLES */
 
@@ -164,7 +174,7 @@ SAMPLE
 	'breaks125' |         'feel' |       'kurt' |         'rave' |        'wobble' |
 	'breaks152' |         'feelfx' |     'latibro' |      'rave2' |       'world' |
 	'breaks152loud' |     'fest' |       'led' |          'ravemono' |    'xmas' |
-	'breaks152louder' |   'fire' |       'less' |         'rm' |          'yeah'
+	'breaks152louder' |   'fire' |       'less' |         'rm' |          'yeah' 
 	;
 	
 WAVE
